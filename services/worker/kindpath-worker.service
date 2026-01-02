@@ -1,0 +1,18 @@
+[Unit]
+Description=KindPath Background Worker
+After=network.target
+
+[Service]
+Type=simple
+User=kindpath
+WorkingDirectory=/home/sam/KPTH/services/worker
+ExecStart=/home/sam/KPTH/services/worker/venv/bin/celery -A app.worker worker --loglevel=info
+Restart=always
+RestartSec=5
+Environment=PATH=/home/sam/KPTH/services/worker/venv/bin
+Environment=REDPANDA_BROKERS=redpanda:9092
+Environment=POSTGRES_HOST=db
+# Add other env vars
+
+[Install]
+WantedBy=multi-user.target

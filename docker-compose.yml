@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:latest
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    command:
+      - redpanda
+      - start
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092
+      - --pandaproxy-addr=0.0.0.0:8082
+      - --advertise-pandaproxy-addr=redpanda:8082
+      - --schema-registry-addr=0.0.0.0:8081
+    volumes:
+      - redpanda-data:/var/lib/redpanda/data
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILISEARCH_API_KEY}
+    volumes:
+      - meilisearch-data:/meili_data
+
+  vault:
+    image: hashicorp/vault:latest
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault-data:/vault/file
+
+  data-capture:
+    build: ./services/data-capture
+    ports:
+      - "8001:8000"
+    environment:
+      - REDPANDA_BROKERS=${REDPANDA_BROKERS}
+      - REDPANDA_TOPIC_DATA=${REDPANDA_TOPIC_DATA}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+    depends_on:
+      - redpanda
+      - minio
+      - vault
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  digital-library:
+    build: ./services/digital-library
+    ports:
+      - "8002:8000"
+    environment:
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - MEILISEARCH_URL=${MEILISEARCH_URL}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - MEILISEARCH_API_KEY=${MEILISEARCH_API_KEY}
+    depends_on:
+      - db
+      - meilisearch
+      - vault
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  ecological-eval:
+    build: ./services/ecological-eval
+    ports:
+      - "8003:8000"
+    environment:
+      - REDPANDA_BROKERS=${REDPANDA_BROKERS}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - EXPORT_ENDPOINT_1=${EXPORT_ENDPOINT_1}
+      - EXPORT_ENDPOINT_2=${EXPORT_ENDPOINT_2}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - SIGNING_KEY=${SIGNING_KEY}
+      - REDPANDA_TOPIC_ECO=${REDPANDA_TOPIC_ECO}
+      - EXPORT_TIMEOUT_SECONDS=${EXPORT_TIMEOUT_SECONDS}
+    depends_on:
+      - redpanda
+      - db
+      - vault
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  worker:
+    build: ./services/worker
+    environment:
+      - REDPANDA_BROKERS=${REDPANDA_BROKERS}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+    depends_on:
+      - redpanda
+      - db
+    # Hidden service config: restart: always, no ports exposed
+
+volumes:
+  redpanda-data:
+  postgres-data:
+  minio-data:
+  meilisearch-data:
+  vault-data:

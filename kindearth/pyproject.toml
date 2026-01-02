@@ -1,0 +1,37 @@
+[tool.poetry]
+name = "kindearth"
+version = "0.1.0"
+description = "KindEarth (in-house) consulting operating system — CLI suite"
+authors = ["KindPath Collective"]
+readme = "README.md"
+packages = [{ include = "kindearth" }]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+typer = "^0.12.5"
+rich = "^13.9.4"
+pydantic = "^2.10.4"
+jinja2 = "^3.1.4"
+click = ">=8.0,<8.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+ruff = "^0.8.4"
+mypy = "^1.13.0"
+
+[tool.poetry.scripts]
+kindearth = "kindearth.cli:app"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

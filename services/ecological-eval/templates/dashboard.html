@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ecological Dashboard</title>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <h1>Ecological Evaluation Dashboard</h1>
+    <div id="map" style="height: 400px;"></div>
+    <script>
+        var map = L.map('map').setView([-25, 135], 4); // Australia center
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Fetch and plot data
+        fetch('/eco-data/map')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(point => {
+                    if (point.map && point.map.lat && point.map.lon) {
+                        L.marker([point.map.lat, point.map.lon]).addTo(map)
+                            .bindPopup(`${point.location}: ${point.metric} = ${point.value}`);
+                    }
+                });
+            });
+    </script>
+</body>
+</html>

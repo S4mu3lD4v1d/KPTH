@@ -1,0 +1,12 @@
+#!/bin/bash
+# scripts/backup/create
+cd "$(dirname "$0")/../.."
+BACKUP_ID=$(date +%Y%m%d_%H%M%S)
+# Backup DB
+docker exec db pg_dump -U kindpath kindpath > backups/db_$BACKUP_ID.sql
+# Backup to MinIO
+docker run --rm --network kpth_default -e AWS_ACCESS_KEY_ID=minioadmin -e AWS_SECRET_ACCESS_KEY=minioadmin -v $(pwd)/backups:/backups amazon/aws-cli s3 cp /backups/db_$BACKUP_ID.sql s3://kindpath-data/backups/db_$BACKUP_ID.sql --endpoint-url http://minio:9000
+# Backup to external services
+curl -X POST $BACKUP_SERVICE_1 -F "file=@backups/db_$BACKUP_ID.sql" -H "Authorization: Bearer $BACKUP_TOKEN"
+curl -X POST $BACKUP_SERVICE_2 -F "file=@backups/db_$BACKUP_ID.sql" -H "Authorization: Bearer $BACKUP_TOKEN"
+echo "Backup created: $BACKUP_ID"

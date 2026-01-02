@@ -1,0 +1,13 @@
+#!/bin/bash
+# scripts/backup/restore <backup-id>
+cd "$(dirname "$0")/../.."
+BACKUP_ID=$1
+if [ -z "$BACKUP_ID" ]; then
+  echo "Usage: $0 <backup-id>"
+  exit 1
+fi
+# Restore from MinIO
+docker run --rm --network kpth_default -e AWS_ACCESS_KEY_ID=minioadmin -e AWS_SECRET_ACCESS_KEY=minioadmin -v $(pwd)/backups:/backups amazon/aws-cli s3 cp s3://kindpath-data/backups/db_$BACKUP_ID.sql /backups/db_$BACKUP_ID.sql --endpoint-url http://minio:9000
+# Restore DB
+docker exec -i db psql -U kindpath kindpath < backups/db_$BACKUP_ID.sql
+echo "Restored from: $BACKUP_ID"
