@@ -1,108 +1,53 @@
-# KindPath / KindEarth Platform
+# KindPath Collective Platform (KindEarth / KindPath)
 
-KindPath is a systems framework and digital platform for working with
-human, ecological, and institutional reality as it actually behaves
-under stress, uncertainty, and time.
+A digital-native platform in active development: pilot operations, community digital libraries,
+ecological evaluation, and social-policy analysis — designed to be sovereignty-first, auditable,
+and non-extractive.
 
-The platform is built on a simple axiom:
-
-> **The real currency of life and society is intentional human time.**
-
-Money, policy, markets, and services are downstream abstractions.
-KindPath exists to make upstream conditions legible, measurable,
-and governable without extraction.
-
----
+> The real currency on Earth is intentional human time.
+> This platform exists to make upstream conditions legible, measurable, and governable without coercion.
 
 ## What this repository is
+This repo contains the **platform prototype** and supporting services, including:
+- Data capture + event publishing (Redpanda / Kafka-compatible)
+- Community Digital Library (search, provenance, redaction tracking)
+- Ecological Evaluation tooling (mapping, metrics, signed export bundles)
+- Background worker for real-time analysis (Celery)
+- Infrastructure stack (Postgres, MinIO/S3, Meilisearch, Vault)
 
-This repository contains the **core digital tooling, doctrine, and pilot
-infrastructure** for the KindPath / KindEarth platform.
+## What this repository is not
+- Not a consumer social platform
+- Not a prediction engine
+- Not surveillance or “scoring people”
+- Not a promise of outcomes
 
-It is **not**:
-- a consumer app
-- a belief system
-- a prediction engine
-- a surveillance or optimisation system
+## Architecture (current)
+- **Data Capture Service:** ingests data and publishes to Redpanda with local encrypted storage
+- **Digital Library Service:** CRUD for literature, Meilisearch search, provenance + redaction tracking, mapping + currency checks
+- **Ecological Evaluation Service:** mapping + metrics + exports to configured endpoints with signed bundles
+- **Worker:** background analysis using Celery
+- **Infrastructure:** Docker Compose with Redpanda, PostgreSQL, MinIO (S3), Meilisearch, Vault (secrets)
 
-It **is**:
-- a set of interoperable tools for pilots, communities, practitioners,
-  and researchers
-- a sovereignty-first digital architecture
-- a place to build, test, and falsify ideas carefully
+Data is encrypted at rest (MinIO SSE), with transport encryption planned (TLS),
+and optional message-level encryption. Backups can be duplicated locally, to MinIO,
+and to external services. Exports are signed and sent to configured endpoints.
 
----
+## Quick Start
+1. Copy `.env.example` → `.env` and configure values.
+2. Run `./scripts/dev/up`
+3. Access services on localhost ports (e.g. data-capture:8001, digital-library:8002)
 
-## System Philosophy (non-negotiable)
-
-- **Time > money**  
-- **Coherence > control**  
-- **Faith is structural, not ideological**  
-- **Measurement must be benevolent, consensual, and interpretable**  
-- **Exit, refusal, and tapering are signs of success**  
-
-If a tool violates these principles, it does not belong here.
-
----
-
-## System Layers
-
-The platform is organised into four interacting layers:
-
-### 1. Ecological & Policy Intelligence (KindEarth)
-Tools that help read **pressure, drift, and constraint** in ecological
-and social systems before collapse occurs.
-
-### 2. Community & Life-Field Interfaces (KindPath)
-Tools that support **people, families, and practitioners** to articulate
-current reality, ideal reality, and movement over time.
-
-### 3. Knowledge & Sovereignty Infrastructure
-Digital libraries and data systems designed for **local ownership,
-provenance, and consent**, not extraction.
-
-### 4. Creative & Educational Interfaces
-Outward-facing tools that reconnect people with land, sound,
-creativity, and shared meaning.
-
----
-
-## Tooling Overview
-
-A canonical list of tools lives in:
-
-
-
-/docs/tools/TOOLS_OVERVIEW.md
-
-
-Each tool has:
-- a clearly defined scope
-- an explicit ethical posture
-- documented non-goals
-- boundaries around use
-
----
+## Canonical Tool Map (docs-first)
+See:
+- `/docs/tools/TOOLS_OVERVIEW.md`
+- `/docs/tools/*.md`
 
 ## Status
-
-Current stage: **Prototype / Pilot Readiness**
-
-This repository prioritises:
-- clarity over completeness
-- doctrine before automation
+**Prototype / Pilot-readiness build.**
+This repo prioritises:
+- clarity over hype
+- doctrine and boundaries before automation
 - manual validation before scaling
 
----
-
-## Licence & Use
-
-This work is shared openly for critique, collaboration,
-and cautious real-world testing.
-
-Use is subject to:
-- ethical constraints
-- sovereignty principles
-- explicit refusal rights
-
-See `/docs/governance/` for details.
+## Licence
+MIT (see LICENSE).

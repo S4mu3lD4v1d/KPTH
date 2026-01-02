@@ -1,3 +1,16 @@
 # KindPath Economic Forecasting Tool
 
-Placeholder for KindPath Economic Forecasting Tool documentation.
+## Purpose
+Translate social/ecological/trust signals into economic posture.
+
+## Status
+In-house pilot only.
+
+## Core signals (draft)
+- Faith density
+- Time horizons
+- Pressure gradients
+
+## Non-goals
+- Providing financial advice
+- Public trading signals
