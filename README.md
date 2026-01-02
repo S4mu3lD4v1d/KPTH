@@ -53,5 +53,7 @@ This repo prioritises:
 MIT (see LICENSE).
 
 ## Community
-Questions, ideas, and proposals live here:
-- KindPath Discussions: https://github.com/S4mu3lD4v1d/kindpath-starter/discussions
+Questions, ideas, and proposals live in KindPath Discussions:
+https://github.com/S4mu3lD4v1d/kindpath-starter/discussions
+
+For bugs and trackable engineering tasks, use KPTH Issues.
