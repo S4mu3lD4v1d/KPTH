@@ -11,9 +11,9 @@ uvicorn = {extras = ["standard"], version = "^0.24.0"}
 sqlalchemy = "^2.0.23"
 psycopg2-binary = "^2.9.9"
 meilisearch = "^0.28.3"
-cryptography = "^41.0.7"
+cryptography = "^46.0.5"
 pydantic = "^2.5.0"
-python-multipart = "^0.0.6"
+python-multipart = "^0.0.22"
 
 [build-system]
 requires = ["poetry-core"]
